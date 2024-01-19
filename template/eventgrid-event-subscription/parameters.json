@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventGridSystemTopicId": {
+            "value": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/resource-tagging-eventgrid-system-topic/providers/Microsoft.EventGrid/systemTopics/azsubscription-egst"
+        },
+        "funcAppFunctionId": {
+            "value": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/resource-tagging-funcapp/providers/Microsoft.Web/sites/resourcetagging0zrw-func/functions/ResourceAutoTaggingEventGridTrigger"
+        }
+    }
+}
