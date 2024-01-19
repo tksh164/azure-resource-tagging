@@ -26,5 +26,11 @@
                 "type": "SystemAssigned"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "eventGridSystemTopicId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.EventGrid/systemTopics', parameters('eventGridSystemTopicName'))]"
+        }
+    }
 }
