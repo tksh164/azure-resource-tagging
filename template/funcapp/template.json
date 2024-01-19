@@ -16,18 +16,18 @@
                 "description": "The URI of the zip package file for ZipDeploy."
             }
         },
-        "uniqueSuffixSeed": {
+        "uniqueStringSeed": {
             "type": "string",
-            "defaultValue": "[utcNow('yyyyMMddhhmmssfff')]",
+            "defaultValue": "[utcNow()]",
             "metadata": {
-                "description": "The default value is enough. No need to change the default value."
+                "description": "The seed for uniqueString(). The default value is enough. No need to change the default value."
             }
         }
     },
     "variables": {
         // Common
         "location": "[resourceGroup().location]",
-        "uniqueSuffix": "[toLower(concat('0', take(uniqueString(parameters('uniqueSuffixSeed')), 3)))]",
+        "uniqueSuffix": "[toLower(concat('0', take(uniqueString(parameters('uniqueStringSeed')), 3)))]",
         "baseName": "[concat(parameters('prefix'), variables('uniqueSuffix'))]",
 
         // Names
