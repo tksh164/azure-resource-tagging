@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "funcAppResourceGroupId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID of the resource group that has Function App related resources."
+            }
+        },
+        "eventGridSystemTopicId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID of the Event Grid System Topic resource. A lock for the Event Grid System Topic will only be created if this value is not empty."
+            }
+        },
+        "lockName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "metadata": {
+                "description": "The name of resource locks."
+            }
+        },
+        "lockLevel": {
+            "type": "string",
+            "allowedValues": [
+                "CanNotDelete",
+                "ReadOnly"
+            ],
+            "metadata": {
+                "description": "The resource lock level."
+            }
+        },
+        "lockNotes": {
+            "type": "string",
+            "metadata": {
+                "description": "The notes for resource locks."
+            }
+        }
+    },
+    "variables": {
+        "shouldLockEventGridSystemTopic": "[not(empty(parameters('eventGridSystemTopicId')))]"
+    },
+    "resources": [
+        // Resource lock for the resource group for Function App
+        {
+            "name": "[format('{0}/{1}', parameters('funcAppResourceGroupId'), parameters('lockName'))]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
+            }
+        },
+
+        // Resource lock for Event Grid System Topic
+        {
+            "condition": "[variables('shouldLockEventGridSystemTopic')]",
+            "name": "[format('{0}/{1}', parameters('eventGridSystemTopicId'), parameters('lockName'))]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
+            }
+        }
+    ]
+}
