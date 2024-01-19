@@ -45,7 +45,7 @@
     "resources": [
         // Resource lock for the resource group for Function App
         {
-            "name": "[format('{0}/{1}', parameters('funcAppResourceGroupId'), parameters('lockName'))]",
+            "name": "[format('{0}/Microsoft.Authorization/{1}', parameters('funcAppResourceGroupId'), parameters('lockName'))]",
             "type": "Microsoft.Authorization/locks",
             "apiVersion": "2020-05-01",
             "properties": {
