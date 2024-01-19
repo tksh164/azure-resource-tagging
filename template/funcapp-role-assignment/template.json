@@ -11,7 +11,6 @@
             }
         }
     },
-    "variables": {},
     "resources": [
         {
             "name": "[guid(parameters('principalId'))]",
@@ -20,9 +19,8 @@
             "properties": {
                 "principalType": "ServicePrincipal",
                 "principalId": "[parameters('principalId')]",
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4a9ae827-6dc8-4573-8ac7-8239d42aa03f')]"  // Tag Contributor
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4a9ae827-6dc8-4573-8ac7-8239d42aa03f')]"  // Tag Contributor role
             }
         }
-    ],
-    "outputs": {}
+    ]
 }
