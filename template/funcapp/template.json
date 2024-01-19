@@ -142,6 +142,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
             ],
+            "kind": "other",
             "properties": {
                 "ApplicationId": "[variables('appInsightsName')]",
                 "Application_Type": "web",
