@@ -17,8 +17,8 @@
     },
     "variables": {
         "systemTopicName": "[last(split(parameters('eventGridSystemTopicId'), '/'))]",
-        "functionAppName": "[split(parameters('funcAppFunctionId'), '/')[8]]",
-        "eventSubscriptionName": "[format('{0}/restag-{1}-evgs', variables('systemTopicName'), take(variables('functionAppName'), 52))]"
+        "funcAppName": "[split(parameters('funcAppFunctionId'), '/')[8]]",
+        "eventSubscriptionName": "[format('{0}/restag-{1}-evgs', variables('systemTopicName'), take(variables('funcAppName'), 52))]"
     },
     "resources": [
         {

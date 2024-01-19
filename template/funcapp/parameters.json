@@ -5,7 +5,7 @@
         "prefix": {
             "value": "restag"
         },
-        "functionAppZipPackageUri": {
+        "funcAppZipPackageUri": {
             "value": "https://github.com/tksh164/azure-resource-tagging/raw/main/template/funcapp/app.zip"
         }
     }

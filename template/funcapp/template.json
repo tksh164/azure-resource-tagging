@@ -10,7 +10,7 @@
                 "description": "The prefix for resource naming. Only use alphanumeric characters."
             }
         },
-        "functionAppZipPackageUri": {
+        "funcAppZipPackageUri": {
             "type": "string",
             "metadata": {
                 "description": "The URI of the zip package file for ZipDeploy."
@@ -35,7 +35,7 @@
         "appInsightsName": "[concat(variables('baseName'), '-appi')]",
         "logAnalyticsWorkspaceName": "[concat(variables('baseName'), '-log')]",
         "appServicePlanName": "[concat(variables('baseName'), '-asp')]",
-        "functionAppName": "[concat(variables('baseName'), '-func')]"
+        "funcAppName": "[concat(variables('baseName'), '-func')]"
     },
     "resources": [
         // Storage Account for Function App
@@ -174,7 +174,7 @@
 
         // Function App
         {
-            "name": "[variables('functionAppName')]",
+            "name": "[variables('funcAppName')]",
             "type": "Microsoft.Web/sites",
             "apiVersion": "2022-09-01",
             "location": "[variables('location')]",
@@ -184,7 +184,7 @@
             ],
             "kind": "functionapp,linux",
             "properties": {
-                "name": "[variables('functionAppName')]",
+                "name": "[variables('funcAppName')]",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
                 "httpsOnly": true,
                 "clientAffinityEnabled": false,
@@ -216,11 +216,11 @@
                         },
                         {
                             "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(variables('functionAppName'))]"
+                            "value": "[toLower(variables('funcAppName'))]"
                         },
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[parameters('functionAppZipPackageUri')]"
+                            "value": "[parameters('funcAppZipPackageUri')]"
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
@@ -242,13 +242,13 @@
         }
     ],
     "outputs": {
-        "functionAppId": {
+        "funcAppId": {
             "type": "string",
-            "value": "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+            "value": "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
         },
-        "functionAppManagedIdentityPrincipalId": {
+        "funcAppManagedIdentityPrincipalId": {
             "type": "string",
-            "value": "[reference(variables('functionAppName'), '2022-09-01', 'Full').identity.principalId]"
+            "value": "[reference(variables('funcAppName'), '2022-09-01', 'Full').identity.principalId]"
         }
     }
 }
