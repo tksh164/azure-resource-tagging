@@ -45,7 +45,7 @@ if ($ValidateOnly) {
 }
 else {
     $params = @{
-        ResourceGroupName = $ResourceGroupName
+        ResourceGroupName       = $ResourceGroupName
         Name                    = ('{0}-{1}'-f (Get-Item -LiteralPath $templateFilePath).BaseName, (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmm'))
         TemplateFile            = $templateFilePath
         DeploymentDebugLogLevel = 'All'
