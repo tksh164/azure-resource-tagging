@@ -1,0 +1,63 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventGridSystemTopicId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID of the Event Grid System Topic."
+            }
+        },
+        "funcAppFunctionId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID of the function in the Function App."
+            }
+        }
+    },
+    "variables": {
+        "systemTopicName": "[last(split(parameters('eventGridSystemTopicId'), '/'))]",
+        "functionAppName": "[split(parameters('funcAppFunctionId'), '/')[8]]",
+        "eventSubscriptionName": "[take(format('{0}/restag-{1}', variables('systemTopicName'), variables('functionAppName')), 64)]"
+    },
+    "resources": [
+        {
+            "name": "[variables('eventSubscriptionName')]",
+            "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "properties": {
+                "topic": "[parameters('eventGridSystemTopicId')]",
+                "eventDeliverySchema": "EventGridSchema",
+                "destination": {
+                    "endpointType": "AzureFunction",
+                    "properties": {
+                        "resourceId": "[parameters('funcAppFunctionId')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64
+                    }
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "Microsoft.Resources.ResourceWriteSuccess"
+                    ],
+                    "enableAdvancedFilteringOnArrays": true,
+                    "advancedFilters": [
+                        {
+                            "key": "data.operationName",
+                            "operatorType": "StringNotIn",
+                            "values": [
+                                "Microsoft.Resources/deployments/write",
+                                "Microsoft.Resources/tags/write"
+                            ]
+                        }
+                    ]
+                },
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                },
+                "labels": []
+            }
+        }
+    ]
+}
