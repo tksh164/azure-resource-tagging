@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "principalId": {
+            "type": "string",
+            "minLength": 36,
+            "maxLength": 36,
+            "metadata": {
+                "description": "The principal ID (GUID) of the Function App's managed identity."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[guid(parameters('principalId'))]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "properties": {
+                "principalType": "ServicePrincipal",
+                "principalId": "[parameters('principalId')]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4a9ae827-6dc8-4573-8ac7-8239d42aa03f')]"  // Tag Contributor
+            }
+        }
+    ],
+    "outputs": {}
+}
