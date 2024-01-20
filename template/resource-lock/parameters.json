@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "funcAppResourceGroupName": {
+            "value": "restag-funcapp-rg"
+        },
+        "eventGridSystemTopicResourceGroupName": {
+            "value": "restag-eventgrid-rg"
+        },
+        "eventGridSystemTopicName": {
+            "value": "azsubscription-egst"
+        },
+        "lockName": {
+            "value": "essential-resource"
+        },
+        "lockLevel": {
+            "value": "CanNotDelete"
+        },
+        "lockNotes": {
+            "value": "Use for resource tagging."
+        }
+    }
+}
