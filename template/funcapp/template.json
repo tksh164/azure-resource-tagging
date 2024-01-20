@@ -278,16 +278,61 @@
                 "level": "[parameters('lockLevel')]",
                 "notes": "[parameters('lockNotes')]"
             }
+        },
+
+        // RBAC assignment on the subscription
+        {
+            "name": "rbac-assignment-on-subscription",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "subscriptionId": "[subscription().subscriptionId]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(variables('funcAppName'), '2022-09-01', 'Full').identity.principalId]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "principalId": {
+                            "type": "string",
+                            "minLength": 36,
+                            "maxLength": 36,
+                            "metadata": {
+                                "description": "The principal ID (GUID) of the Function App's managed identity."
+                            }
+                        }
+                    },
+                    "resources": [
+                        {
+                            "name": "[guid(parameters('principalId'))]",
+                            "type": "Microsoft.Authorization/roleAssignments",
+                            "apiVersion": "2022-04-01",
+                            "properties": {
+                                "principalType": "ServicePrincipal",
+                                "principalId": "[parameters('principalId')]",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4a9ae827-6dc8-4573-8ac7-8239d42aa03f')]"  // Tag Contributor role
+                            }
+                        }
+                    ]
+                }
+            }
         }
     ],
     "outputs": {
         "funcAppId": {
             "type": "string",
             "value": "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
-        },
-        "funcAppManagedIdentityPrincipalId": {
-            "type": "string",
-            "value": "[reference(variables('funcAppName'), '2022-09-01', 'Full').identity.principalId]"
         }
     }
 }
