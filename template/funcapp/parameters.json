@@ -7,6 +7,15 @@
         },
         "funcAppZipPackageUri": {
             "value": "https://github.com/tksh164/azure-resource-tagging/raw/main/template/funcapp/app.zip"
+        },
+        "lockName": {
+            "value": "essential-resource"
+        },
+        "lockLevel": {
+            "value": "CanNotDelete"
+        },
+        "lockNotes": {
+            "value": "Use for the resource tagging."
         }
     }
 }

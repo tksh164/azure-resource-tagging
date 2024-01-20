@@ -16,6 +16,30 @@
                 "description": "The URI of the zip package file for ZipDeploy."
             }
         },
+        "lockName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "metadata": {
+                "description": "The name of the resource lock for the Function App's resource group."
+            }
+        },
+        "lockLevel": {
+            "type": "string",
+            "allowedValues": [
+                "CanNotDelete",
+                "ReadOnly"
+            ],
+            "metadata": {
+                "description": "The lock level for the resource lock."
+            }
+        },
+        "lockNotes": {
+            "type": "string",
+            "metadata": {
+                "description": "The notes for the resource lock."
+            }
+        },
         "uniqueStringSeed": {
             "type": "string",
             "defaultValue": "[utcNow()]",
@@ -179,8 +203,9 @@
             "apiVersion": "2022-09-01",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-                "[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             ],
             "kind": "functionapp,linux",
             "properties": {
@@ -239,16 +264,75 @@
             "tags": {
                 "hidden-link: /app-insights-resource-id": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
             }
+        },
+
+        // RBAC assignment on the subscription
+        {
+            "name": "rbac-assignment-on-subscription",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "subscriptionId": "[subscription().subscriptionId]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "parameters": {
+                    "principalId": {
+                        "value": "[reference(variables('funcAppName'), '2022-09-01', 'Full').identity.principalId]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "principalId": {
+                            "type": "string",
+                            "minLength": 36,
+                            "maxLength": 36,
+                            "metadata": {
+                                "description": "The principal ID (GUID) of the Function App's managed identity."
+                            }
+                        }
+                    },
+                    "resources": [
+                        {
+                            "name": "[guid(parameters('principalId'))]",
+                            "type": "Microsoft.Authorization/roleAssignments",
+                            "apiVersion": "2022-04-01",
+                            "properties": {
+                                "principalType": "ServicePrincipal",
+                                "principalId": "[parameters('principalId')]",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4a9ae827-6dc8-4573-8ac7-8239d42aa03f')]"  // Tag Contributor role
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+
+        // Resource lock for the resource group
+        {
+            "name": "[parameters('lockName')]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
+            ],
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
+            }
         }
     ],
     "outputs": {
         "funcAppId": {
             "type": "string",
             "value": "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
-        },
-        "funcAppManagedIdentityPrincipalId": {
-            "type": "string",
-            "value": "[reference(variables('funcAppName'), '2022-09-01', 'Full').identity.principalId]"
         }
     }
 }
