@@ -200,7 +200,7 @@
                 "mode": "Incremental",
                 "parameters": {
                     "eventGridSystemTopicId": {
-                        "value": "[if(empty(parameters('existingEventGridSystemTopicId')), reference(variables('eventGridSystemTopicDeploymentId')).outputs.eventGridSystemTopicId.value, parameters('existingEventGridSystemTopicId'))]"
+                        "value": "[if(variables('shouldDeployEventGridSystemTopic'), reference(variables('eventGridSystemTopicDeploymentId')).outputs.eventGridSystemTopicId.value, parameters('existingEventGridSystemTopicId'))]"
                     },
                     "funcAppFunctionId": {
                         "value": "[format('{0}/functions/{1}', reference(variables('funcAppDeploymentId')).outputs.funcAppId.value, parameters('resourceTaggingFunctionName'))]"
