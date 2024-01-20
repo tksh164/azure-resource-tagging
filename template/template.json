@@ -99,49 +99,6 @@
         "eventGridSystemTopicDeploymentId": "[resourceId(subscription().subscriptionId, parameters('newEventGridSystemTopicResourceGroupName'), 'Microsoft.Resources/deployments', variables('deploymentName').eventGridSystemTopic)]"
     },
     "resources": [
-        // Resource group for Function App
-        {
-            "name": "[parameters('funcAppResourceGroupName')]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2022-09-01",
-            "location": "[parameters('funcAppLocation')]"
-        },
-
-        // Function app
-        {
-            "name": "[variables('deploymentName').funcApp]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
-            "resourceGroup": "[parameters('funcAppResourceGroupName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('funcAppResourceGroupName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "parameters": {
-                    "prefix": {
-                        "value": "[parameters('funcAppPrefix')]"
-                    },
-                    "funcAppZipPackageUri": {
-                        "value": "[parameters('funcAppZipPackageUri')]"
-                    },
-                    "lockName": {
-                        "value": "[variables('resourceLock').name]"
-                    },
-                    "lockLevel": {
-                        "value": "[variables('resourceLock').level]"
-                    },
-                    "lockNotes": {
-                        "value": "[variables('resourceLock').notes]"
-                    }
-                },
-                "templateLink": {
-                    "uri": "[uri(variables('templateBaseUri'), 'funcapp/template.json')]",
-                    "contentVersion": "1.0.0.0"
-                }
-            }
-        },
-
         // Resource group for Event Grid System Topic
         {
             "condition": "[variables('shouldDeployEventGridSystemTopic')]",
@@ -179,6 +136,52 @@
                 },
                 "templateLink": {
                     "uri": "[uri(variables('templateBaseUri'), 'eventgrid-system-topic/template.json')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+
+        // Resource group for Function App
+        {
+            "name": "[parameters('funcAppResourceGroupName')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2022-09-01",
+            "location": "[parameters('funcAppLocation')]",
+            "dependsOn": [
+                "[variables('eventGridSystemTopicDeploymentId')]"  // For tagging to function app related resources
+            ]
+        },
+
+        // Function app
+        {
+            "name": "[variables('deploymentName').funcApp]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "resourceGroup": "[parameters('funcAppResourceGroupName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('funcAppResourceGroupName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "prefix": {
+                        "value": "[parameters('funcAppPrefix')]"
+                    },
+                    "funcAppZipPackageUri": {
+                        "value": "[parameters('funcAppZipPackageUri')]"
+                    },
+                    "lockName": {
+                        "value": "[variables('resourceLock').name]"
+                    },
+                    "lockLevel": {
+                        "value": "[variables('resourceLock').level]"
+                    },
+                    "lockNotes": {
+                        "value": "[variables('resourceLock').notes]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "[uri(variables('templateBaseUri'), 'funcapp/template.json')]",
                     "contentVersion": "1.0.0.0"
                 }
             }
