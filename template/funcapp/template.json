@@ -16,6 +16,30 @@
                 "description": "The URI of the zip package file for ZipDeploy."
             }
         },
+        "lockName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "metadata": {
+                "description": "The name of the resource lock for the Function App's resource group."
+            }
+        },
+        "lockLevel": {
+            "type": "string",
+            "allowedValues": [
+                "CanNotDelete",
+                "ReadOnly"
+            ],
+            "metadata": {
+                "description": "The lock level for the resource lock."
+            }
+        },
+        "lockNotes": {
+            "type": "string",
+            "metadata": {
+                "description": "The notes for the resource lock."
+            }
+        },
         "uniqueStringSeed": {
             "type": "string",
             "defaultValue": "[utcNow()]",
@@ -179,8 +203,9 @@
             "apiVersion": "2022-09-01",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-                "[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             ],
             "kind": "functionapp,linux",
             "properties": {
@@ -238,6 +263,20 @@
             },
             "tags": {
                 "hidden-link: /app-insights-resource-id": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]"
+            }
+        },
+
+        // Resource lock for the resource group
+        {
+            "name": "[parameters('lockName')]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
+            ],
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
             }
         }
     ],
