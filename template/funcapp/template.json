@@ -266,20 +266,6 @@
             }
         },
 
-        // Resource lock for the resource group
-        {
-            "name": "[parameters('lockName')]",
-            "type": "Microsoft.Authorization/locks",
-            "apiVersion": "2020-05-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
-            ],
-            "properties": {
-                "level": "[parameters('lockLevel')]",
-                "notes": "[parameters('lockNotes')]"
-            }
-        },
-
         // RBAC assignment on the subscription
         {
             "name": "rbac-assignment-on-subscription",
@@ -326,6 +312,20 @@
                         }
                     ]
                 }
+            }
+        },
+
+        // Resource lock for the resource group
+        {
+            "name": "[parameters('lockName')]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('funcAppName'))]"
+            ],
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
             }
         }
     ],
