@@ -83,6 +83,7 @@
         "templateBaseUri": "[if(endsWith(parameters('templateBaseUri'), '/'), parameters('templateBaseUri'), concat(parameters('templateBaseUri'), '/'))]",
 
         "shouldDeployEventGridSystemTopic": "[empty(parameters('existingEventGridSystemTopicId'))]",
+        "eventGridSystemTopicResourceGroupName": "[if(variables('shouldDeployEventGridSystemTopic'), parameters('newEventGridSystemTopicResourceGroupName'), split(parameters('existingEventGridSystemTopicId'), '/')[4])]",
 
         "resourceLock": {
             "name": "essential-resource",
@@ -192,7 +193,7 @@
             "name": "[variables('deploymentName').eventGridSubscription]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2022-09-01",
-            "resourceGroup": "[parameters('newEventGridSystemTopicResourceGroupName')]",
+            "resourceGroup": "[variables('eventGridSystemTopicResourceGroupName')]",
             "dependsOn": [
                 "[variables('eventGridSystemTopicDeploymentId')]"
             ],
