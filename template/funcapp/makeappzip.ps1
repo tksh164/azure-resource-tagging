@@ -5,7 +5,7 @@ $targetFiles = @(
     'funcapp\ResourceAutoTaggingEventGridTrigger'
 )
 
-$destinationFile = 'funcapp.zip'
+$destinationFile = 'app.zip'
 
 $targetFiles |
     ForEach-Object -Process { Join-Path -Path $PSScriptRoot -ChildPath $_ } |
