@@ -6,13 +6,37 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 128,
-            "defaultValue": "azsubscription-egst",
             "metadata": {
                 "description": "The name of Event Grid System Topic resource. Only one resource that has the subscription source can be created per subscription."
+            }
+        },
+        "lockName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "metadata": {
+                "description": "The name of the resource lock for the Function App's resource group."
+            }
+        },
+        "lockLevel": {
+            "type": "string",
+            "allowedValues": [
+                "CanNotDelete",
+                "ReadOnly"
+            ],
+            "metadata": {
+                "description": "The lock level for the resource lock."
+            }
+        },
+        "lockNotes": {
+            "type": "string",
+            "metadata": {
+                "description": "The notes for the resource lock."
             }
         }
     },
     "resources": [
+        // Event Grid System Topic
         {
             "name": "[parameters('eventGridSystemTopicName')]",
             "type": "Microsoft.EventGrid/systemTopics",
@@ -24,6 +48,21 @@
             },
             "identity": {
                 "type": "SystemAssigned"
+            }
+        },
+
+        // Resource lock for Event Grid System Topic
+        {
+            "name": "[parameters('lockName')]",
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2020-05-01",
+            "scope": "[format('Microsoft.EventGrid/systemTopics/{0}', parameters('eventGridSystemTopicName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/systemTopics', parameters('eventGridSystemTopicName'))]"
+            ],
+            "properties": {
+                "level": "[parameters('lockLevel')]",
+                "notes": "[parameters('lockNotes')]"
             }
         }
     ],
