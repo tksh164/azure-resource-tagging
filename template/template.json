@@ -83,6 +83,7 @@
         "templateBaseUri": "[if(endsWith(parameters('templateBaseUri'), '/'), parameters('templateBaseUri'), concat(parameters('templateBaseUri'), '/'))]",
 
         "shouldDeployEventGridSystemTopic": "[empty(parameters('existingEventGridSystemTopicId'))]",
+        "eventGridSystemTopicResourceGroupName": "[if(variables('shouldDeployEventGridSystemTopic'), parameters('newEventGridSystemTopicResourceGroupName'), split(parameters('existingEventGridSystemTopicId'), '/')[4])]",
 
         "resourceLock": {
             "name": "essential-resource",
@@ -99,49 +100,6 @@
         "eventGridSystemTopicDeploymentId": "[resourceId(subscription().subscriptionId, parameters('newEventGridSystemTopicResourceGroupName'), 'Microsoft.Resources/deployments', variables('deploymentName').eventGridSystemTopic)]"
     },
     "resources": [
-        // Resource group for Function App
-        {
-            "name": "[parameters('funcAppResourceGroupName')]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2022-09-01",
-            "location": "[parameters('funcAppLocation')]"
-        },
-
-        // Function app
-        {
-            "name": "[variables('deploymentName').funcApp]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
-            "resourceGroup": "[parameters('funcAppResourceGroupName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('funcAppResourceGroupName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "parameters": {
-                    "prefix": {
-                        "value": "[parameters('funcAppPrefix')]"
-                    },
-                    "funcAppZipPackageUri": {
-                        "value": "[parameters('funcAppZipPackageUri')]"
-                    },
-                    "lockName": {
-                        "value": "[variables('resourceLock').name]"
-                    },
-                    "lockLevel": {
-                        "value": "[variables('resourceLock').level]"
-                    },
-                    "lockNotes": {
-                        "value": "[variables('resourceLock').notes]"
-                    }
-                },
-                "templateLink": {
-                    "uri": "[uri(variables('templateBaseUri'), 'funcapp/template.json')]",
-                    "contentVersion": "1.0.0.0"
-                }
-            }
-        },
-
         // Resource group for Event Grid System Topic
         {
             "condition": "[variables('shouldDeployEventGridSystemTopic')]",
@@ -184,12 +142,58 @@
             }
         },
 
+        // Resource group for Function App
+        {
+            "name": "[parameters('funcAppResourceGroupName')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2022-09-01",
+            "location": "[parameters('funcAppLocation')]",
+            "dependsOn": [
+                "[variables('eventGridSystemTopicDeploymentId')]"  // For tagging to function app related resources
+            ]
+        },
+
+        // Function app
+        {
+            "name": "[variables('deploymentName').funcApp]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "resourceGroup": "[parameters('funcAppResourceGroupName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('funcAppResourceGroupName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "prefix": {
+                        "value": "[parameters('funcAppPrefix')]"
+                    },
+                    "funcAppZipPackageUri": {
+                        "value": "[parameters('funcAppZipPackageUri')]"
+                    },
+                    "lockName": {
+                        "value": "[variables('resourceLock').name]"
+                    },
+                    "lockLevel": {
+                        "value": "[variables('resourceLock').level]"
+                    },
+                    "lockNotes": {
+                        "value": "[variables('resourceLock').notes]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "[uri(variables('templateBaseUri'), 'funcapp/template.json')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+
         // Event Grid event subscription
         {
             "name": "[variables('deploymentName').eventGridSubscription]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2022-09-01",
-            "resourceGroup": "[parameters('newEventGridSystemTopicResourceGroupName')]",
+            "resourceGroup": "[variables('eventGridSystemTopicResourceGroupName')]",
             "dependsOn": [
                 "[variables('eventGridSystemTopicDeploymentId')]"
             ],
@@ -197,7 +201,7 @@
                 "mode": "Incremental",
                 "parameters": {
                     "eventGridSystemTopicId": {
-                        "value": "[if(empty(parameters('existingEventGridSystemTopicId')), reference(variables('eventGridSystemTopicDeploymentId')).outputs.eventGridSystemTopicId.value, parameters('existingEventGridSystemTopicId'))]"
+                        "value": "[if(variables('shouldDeployEventGridSystemTopic'), reference(variables('eventGridSystemTopicDeploymentId')).outputs.eventGridSystemTopicId.value, parameters('existingEventGridSystemTopicId'))]"
                     },
                     "funcAppFunctionId": {
                         "value": "[format('{0}/functions/{1}', reference(variables('funcAppDeploymentId')).outputs.funcAppId.value, parameters('resourceTaggingFunctionName'))]"
